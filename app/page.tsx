@@ -30,8 +30,6 @@ export default function Home() {
     "A / P",
     "A???",
     "a fuk",
-    "P A solutions",
-    "AssHoles"
   ];
 
   // Cycle through fragments initially
@@ -42,7 +40,7 @@ export default function Home() {
 
     const timeout = setTimeout(() => {
       clearInterval(interval);
-    }, 5000);
+    }, 7000);
 
     return () => {
       clearInterval(interval);
