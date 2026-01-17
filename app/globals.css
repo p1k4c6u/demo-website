@@ -1,30 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0F1115;
-  --foreground: #F2F3F5;
-  --primary: #1F6F54;
-  --secondary: #2B9C82;
-  --accent: #F2F3F5;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  --night: #0a0a0f;
+  --dawn: #4a5f7a;
+  --day: #87a7c4;
+  --golden: #d4a574;
+  --foreground: #f5f5f0;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-night: var(--night);
+  --color-dawn: var(--dawn);
+  --color-day: var(--day);
+  --color-golden: var(--golden);
   --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+}
+
+@font-face {
+  font-family: 'Söhne';
+  src: local('Inter'), local('SF Pro Display');
+  font-weight: 400 700;
 }
 
 body {
-  background: var(--background);
+  background: var(--night);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: 'Söhne', var(--font-sans);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -34,7 +40,7 @@ body {
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 /* Custom animations */
