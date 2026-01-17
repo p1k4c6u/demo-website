@@ -2,36 +2,39 @@
 
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Sphere } from "@react-three/drei";
+import { Sphere } from "@react-three/drei";
 import * as THREE from "three";
 
-// Animated grid of floating nodes
-function FloatingNodes() {
+// Very subtle, abstract floating form
+function AbstractForm() {
   const groupRef = useRef<THREE.Group>(null);
-  const count = 8;
+  const count = 5; // Much fewer nodes for subtlety
 
-  // Generate positions for nodes in a grid pattern
+  // Generate minimal grid of positions
   const positions = useMemo(() => {
     const pos = [];
     for (let x = 0; x < count; x++) {
       for (let y = 0; y < count; y++) {
         for (let z = 0; z < count; z++) {
-          pos.push([
-            (x - count / 2) * 1.5,
-            (y - count / 2) * 1.5,
-            (z - count / 2) * 1.5,
-          ]);
+          // Only add some positions for irregularity
+          if ((x + y + z) % 2 === 0) {
+            pos.push([
+              (x - count / 2) * 2,
+              (y - count / 2) * 2,
+              (z - count / 2) * 2,
+            ]);
+          }
         }
       }
     }
     return pos;
   }, []);
 
-  // Animate the group
+  // Very slow, calm rotation
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.1;
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.05) * 0.2;
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.03;
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.02) * 0.1;
     }
   });
 
@@ -45,39 +48,45 @@ function FloatingNodes() {
   );
 }
 
-// Individual node sphere
+// Minimal node
 function Node({ position, index }: { position: [number, number, number]; index: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (meshRef.current) {
-      // Gentle floating animation
-      const t = state.clock.elapsedTime + index * 0.2;
-      meshRef.current.position.y = position[1] + Math.sin(t) * 0.15;
+      // Very subtle breathing animation
+      const t = state.clock.elapsedTime * 0.3 + index * 0.3;
+      meshRef.current.position.y = position[1] + Math.sin(t) * 0.1;
+
+      // Subtle scale pulse
+      const scale = 1 + Math.sin(t * 0.5) * 0.1;
+      meshRef.current.scale.set(scale, scale, scale);
     }
   });
 
   return (
-    <Sphere ref={meshRef} args={[0.08, 16, 16]} position={position}>
+    <Sphere ref={meshRef} args={[0.12, 16, 16]} position={position}>
       <meshStandardMaterial
         color="#1F6F54"
         emissive="#1F6F54"
-        emissiveIntensity={0.5}
-        metalness={0.8}
-        roughness={0.2}
+        emissiveIntensity={0.3}
+        metalness={0.9}
+        roughness={0.1}
+        transparent
+        opacity={0.8}
       />
     </Sphere>
   );
 }
 
-// Connecting lines between nodes
+// Very subtle connecting lines
 function Lines({ positions }: { positions: number[][] }) {
   const linesMaterial = useMemo(
     () =>
       new THREE.LineBasicMaterial({
         color: new THREE.Color("#1F6F54"),
         transparent: true,
-        opacity: 0.15,
+        opacity: 0.08,
       }),
     []
   );
@@ -86,7 +95,7 @@ function Lines({ positions }: { positions: number[][] }) {
     const geometry = new THREE.BufferGeometry();
     const vertices = [];
 
-    // Connect nearby nodes
+    // Connect only very close nodes
     for (let i = 0; i < positions.length; i++) {
       for (let j = i + 1; j < positions.length; j++) {
         const distance = Math.hypot(
@@ -95,8 +104,7 @@ function Lines({ positions }: { positions: number[][] }) {
           positions[i][2] - positions[j][2]
         );
 
-        // Only connect close nodes
-        if (distance < 2) {
+        if (distance < 3) {
           vertices.push(...positions[i], ...positions[j]);
         }
       }
@@ -109,30 +117,21 @@ function Lines({ positions }: { positions: number[][] }) {
   return <lineSegments geometry={linesGeometry} material={linesMaterial} />;
 }
 
-// Main 3D Scene Component
+// Main scene - very restrained and subtle
 export default function Scene3D() {
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [0, 0, 15], fov: 45 }}
+        camera={{ position: [0, 0, 12], fov: 50 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
       >
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#2B9C82" />
+        {/* Very subtle lighting */}
+        <ambientLight intensity={0.3} />
+        <pointLight position={[5, 5, 5]} intensity={0.4} color="#1F6F54" />
+        <pointLight position={[-5, -5, -5]} intensity={0.2} color="#2B9C82" />
 
-        <FloatingNodes />
-
-        {/* Subtle orbit controls for mouse interaction */}
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          autoRotate
-          autoRotateSpeed={0.5}
-          maxPolarAngle={Math.PI / 2}
-          minPolarAngle={Math.PI / 2}
-        />
+        <AbstractForm />
       </Canvas>
     </div>
   );
