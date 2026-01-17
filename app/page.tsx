@@ -61,13 +61,13 @@ export default function Home() {
   const section1Opacity = useTransform(smoothProgress, [0, 0.2], [1, 0]);
   const section1Scale = useTransform(smoothProgress, [0, 0.2], [1, 0.95]);
 
-  const section2Opacity = useTransform(smoothProgress, [0.15, 0.25, 0.55], [0, 1, 0]);
+  const section2Opacity = useTransform(smoothProgress, [0.15, 0.25, 0.60], [0, 1, 0]);
   const section2Y = useTransform(smoothProgress, [0.15, 0.3], [60, 0]);
 
-  const section3Opacity = useTransform(smoothProgress, [0.4, 0.50, 0.85], [0, 1, 0]);
+  const section3Opacity = useTransform(smoothProgress, [0.4, 0.55, 0.88], [0, 1, 0]);
   const section3Y = useTransform(smoothProgress, [0.4, 0.55], [60, 0]);
 
-  const section4Opacity = useTransform(smoothProgress, [0.65, 0.8], [0, 1]);
+  const section4Opacity = useTransform(smoothProgress, [0.65, 0.83], [0, 1]);
   const section4Y = useTransform(smoothProgress, [0.65, 0.8], [60, 0]);
 
   return (
