@@ -23,11 +23,12 @@ export default function Home() {
 
   // Fragmented name states (before resolution)
   const fragments = [
-    "A_ _R_J_C_S",
-    "_P PR_J_ _TS",
-    "AP _RO_ _CT_",
-    "A_ PRO_EC_S",
-    "AP P_OJE_TS",
+    "AutoParing",
+    "AutoParing projects",
+    "A / P",
+    "A???",
+    "P A solutions",
+    "AssHoles"
   ];
 
   // Cycle through fragments initially
@@ -168,7 +169,7 @@ export default function Home() {
                 A small studio based in Estonia.
               </p>
               <p className="text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
-                We work with ambitious teams.
+                We work ambitiously.
               </p>
             </div>
 
@@ -223,7 +224,7 @@ export default function Home() {
               href="mailto:hello@ap-projects.ee"
               className="block text-2xl md:text-3xl text-foreground hover:text-foreground/70 transition-colors font-light"
             >
-              hello@ap-projects.ee
+              oskarlouiskalev2@gmail.com
             </a>
           </div>
 
