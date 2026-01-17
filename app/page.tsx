@@ -29,7 +29,7 @@ export default function Home() {
     "...",
     "A / P",
     "A???",
-    "______",
+    "a fuk",
     "P A solutions",
     "AssHoles"
   ];
