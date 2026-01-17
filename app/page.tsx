@@ -2,17 +2,11 @@
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-
-// Dynamically import 3D scene
-const Scene3D = dynamic(() => import("@/components/Scene3D"), {
-  ssr: false,
-});
+import Environment from "@/components/Environment";
 
 export default function Home() {
   const [identityResolved, setIdentityResolved] = useState(false);
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const [currentFragment, setCurrentFragment] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -20,26 +14,31 @@ export default function Home() {
     offset: ["start start", "end end"],
   });
 
-  // Smooth spring animation for scroll
+  // Smooth spring for all scroll-based animations
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
+    stiffness: 50,
+    damping: 20,
     restDelta: 0.001,
   });
 
-  // Placeholders that cycle before identity is resolved
-  const placeholders = ["— — —", "A / P", "A P ?", "...", "A—P"];
+  // Fragmented name states (before resolution)
+  const fragments = [
+    "A_ _R_J_C_S",
+    "_P PR_J_ _TS",
+    "AP _RO_ _CT_",
+    "A_ PRO_EC_S",
+    "AP P_OJE_TS",
+  ];
 
-  // Cycle through placeholders on initial load
+  // Cycle through fragments initially
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
-    }, 1200);
+      setCurrentFragment((prev) => (prev + 1) % fragments.length);
+    }, 800);
 
-    // Stop cycling after 6 seconds
     const timeout = setTimeout(() => {
       clearInterval(interval);
-    }, 6000);
+    }, 5000);
 
     return () => {
       clearInterval(interval);
@@ -47,99 +46,79 @@ export default function Home() {
     };
   }, []);
 
-  // Resolve identity based on scroll
+  // Resolve identity on scroll
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (latest) => {
-      if (latest > 0.05 && !identityResolved) {
+      if (latest > 0.08 && !identityResolved) {
         setIdentityResolved(true);
       }
     });
     return () => unsubscribe();
   }, [scrollYProgress, identityResolved]);
 
-  // Transform values based on scroll
-  const heroOpacity = useTransform(smoothProgress, [0, 0.2], [1, 0]);
-  const heroScale = useTransform(smoothProgress, [0, 0.2], [1, 0.95]);
-  const identityY = useTransform(smoothProgress, [0, 0.15], [0, -100]);
+  // Section opacity and position transforms
+  const section1Opacity = useTransform(smoothProgress, [0, 0.2], [1, 0]);
+  const section1Scale = useTransform(smoothProgress, [0, 0.2], [1, 0.95]);
 
-  const section2Opacity = useTransform(smoothProgress, [0.15, 0.3], [0, 1]);
-  const section2Y = useTransform(smoothProgress, [0.15, 0.3], [100, 0]);
+  const section2Opacity = useTransform(smoothProgress, [0.15, 0.3, 0.45], [0, 1, 0]);
+  const section2Y = useTransform(smoothProgress, [0.15, 0.3], [60, 0]);
 
-  const section3Opacity = useTransform(smoothProgress, [0.4, 0.55], [0, 1]);
-  const section3Y = useTransform(smoothProgress, [0.4, 0.55], [100, 0]);
+  const section3Opacity = useTransform(smoothProgress, [0.4, 0.55, 0.7], [0, 1, 0]);
+  const section3Y = useTransform(smoothProgress, [0.4, 0.55], [60, 0]);
 
   const section4Opacity = useTransform(smoothProgress, [0.65, 0.8], [0, 1]);
-  const section4Y = useTransform(smoothProgress, [0.65, 0.8], [100, 0]);
+  const section4Y = useTransform(smoothProgress, [0.65, 0.8], [60, 0]);
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Hero Section - Identity Formation */}
+      {/* Environmental background */}
+      <Environment scrollProgress={smoothProgress} />
+
+      {/* Section 1: Night / Opening */}
       <section className="relative h-[200vh]">
-        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
-          {/* 3D Background - very subtle */}
-          <div className="absolute inset-0 z-0 opacity-40">
-            <Scene3D />
-          </div>
-
-          {/* Vignette */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background z-10" />
-
-          {/* Identity Formation */}
+        <div className="sticky top-0 h-screen flex items-center justify-center">
           <motion.div
-            style={{ opacity: heroOpacity, scale: heroScale, y: identityY }}
-            className="relative z-20 text-center"
+            style={{
+              opacity: section1Opacity,
+              scale: section1Scale,
+            }}
+            className="text-center px-6"
           >
             {!identityResolved ? (
+              // Fragmented state
               <motion.div
-                key={currentPlaceholder}
+                key={currentFragment}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
-                className="text-7xl md:text-9xl font-bold text-foreground/40 tracking-wider"
+                transition={{ duration: 0.4 }}
+                className="text-6xl md:text-8xl lg:text-9xl font-bold text-foreground/40 tracking-[0.3em] font-mono"
               >
-                {placeholders[currentPlaceholder]}
+                {fragments[currentFragment]}
               </motion.div>
             ) : (
+              // Resolved state
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
+                transition={{ duration: 2, ease: "easeOut" }}
               >
                 <motion.h1
-                  initial={{ letterSpacing: "0.5em", opacity: 0.4 }}
-                  animate={{ letterSpacing: "0.05em", opacity: 1 }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  className="text-7xl md:text-9xl font-bold text-foreground mb-12"
+                  initial={{ letterSpacing: "0.8em", opacity: 0.3 }}
+                  animate={{ letterSpacing: "0.15em", opacity: 1 }}
+                  transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-6xl md:text-8xl lg:text-9xl font-bold text-foreground mb-16"
                 >
-                  AP-group
+                  AP PROJECTS
                 </motion.h1>
 
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.8 }}
-                  className="text-2xl md:text-4xl font-light text-foreground/90 mb-6 max-w-4xl mx-auto px-6"
-                >
-                  We build systems that scale.
-                </motion.p>
-
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 1.2 }}
-                  className="text-lg md:text-xl text-foreground/60 max-w-2xl mx-auto px-6 mb-12"
-                >
-                  Strategy, technology and execution for teams that want results — not noise.
-                </motion.p>
-
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1, delay: 1.8 }}
-                  className="text-sm text-foreground/40 tracking-widest"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1.5, delay: 1.2, ease: "easeOut" }}
+                  className="text-sm md:text-base text-foreground/40 tracking-[0.3em] uppercase"
                 >
-                  SCROLL TO CONTINUE
+                  Scroll to wake
                 </motion.div>
               </motion.div>
             )}
@@ -147,151 +126,114 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 2: What We Do */}
+      {/* Section 2: Early Morning / Introduction */}
       <section className="relative min-h-screen flex items-center justify-center py-32">
         <motion.div
-          style={{ opacity: section2Opacity, y: section2Y }}
-          className="max-w-7xl mx-auto px-6"
+          style={{
+            opacity: section2Opacity,
+            y: section2Y,
+          }}
+          className="max-w-5xl mx-auto px-6 text-center"
         >
-          <div className="text-center mb-32">
-            <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6 tracking-tight">
-              What we do
-            </h2>
-            <p className="text-xl text-foreground/50 max-w-2xl mx-auto">
-              Three pillars. One focus.
-            </p>
-          </div>
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-light text-foreground mb-12 leading-tight">
+            We build systems
+            <br />
+            that scale.
+          </h2>
 
-          <div className="grid md:grid-cols-3 gap-16 md:gap-24">
-            {[
-              {
-                title: "Strategy",
-                description: "Clear roadmaps. Aligned priorities. No waste.",
-              },
-              {
-                title: "Technology",
-                description: "Modern systems. Built to last. Ready to scale.",
-              },
-              {
-                title: "Execution",
-                description: "Fast delivery. High quality. Real results.",
-              },
-            ].map((pillar, index) => (
-              <motion.div
-                key={pillar.title}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, delay: index * 0.2 }}
-                className="text-center"
-              >
-                <div className="w-1 h-24 bg-primary mx-auto mb-8" />
-                <h3 className="text-3xl font-bold text-foreground mb-6 tracking-tight">
-                  {pillar.title}
-                </h3>
-                <p className="text-lg text-foreground/60 leading-relaxed">
-                  {pillar.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+          <p className="text-xl md:text-2xl text-foreground/60 font-light max-w-3xl mx-auto leading-relaxed">
+            Strategy, technology and execution —
+            <br />
+            without noise.
+          </p>
         </motion.div>
       </section>
 
-      {/* Section 3: About */}
+      {/* Section 3: Midday / About */}
       <section className="relative min-h-screen flex items-center justify-center py-32">
         <motion.div
-          style={{ opacity: section3Opacity, y: section3Y }}
-          className="max-w-4xl mx-auto px-6 text-center"
+          style={{
+            opacity: section3Opacity,
+            y: section3Y,
+          }}
+          className="max-w-4xl mx-auto px-6"
         >
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2 }}
-          >
-            <div className="space-y-8 text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
-              <p>We are a small team.</p>
-              <p>We work with ambitious companies.</p>
-              <p>We build systems that matter.</p>
-              <p className="text-foreground/50 text-xl md:text-2xl pt-8">
-                No noise. No theatrics. Just clarity and execution.
+          <div className="space-y-24">
+            {/* Who we are */}
+            <div className="text-center space-y-6">
+              <h3 className="text-sm text-foreground/40 tracking-[0.3em] uppercase mb-8">
+                Who we are
+              </h3>
+              <p className="text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
+                A small studio based in Estonia.
+              </p>
+              <p className="text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
+                We work with ambitious teams.
               </p>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="mt-20 pt-20 border-t border-foreground/10"
-            >
-              <p className="text-lg text-foreground/50 italic">
-                Per aspera ad astra
+            {/* What we focus on */}
+            <div className="text-center space-y-6">
+              <h3 className="text-sm text-foreground/40 tracking-[0.3em] uppercase mb-8">
+                What we focus on
+              </h3>
+              <p className="text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
+                Digital products that matter.
               </p>
-              <p className="text-sm text-foreground/30 mt-2">
-                Through hardship to the stars
+              <p className="text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
+                Infrastructure that scales.
               </p>
-            </motion.div>
-          </motion.div>
+            </div>
+
+            {/* How we work */}
+            <div className="text-center space-y-6">
+              <h3 className="text-sm text-foreground/40 tracking-[0.3em] uppercase mb-8">
+                How we work
+              </h3>
+              <p className="text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
+                Clear thinking. Fast execution.
+              </p>
+              <p className="text-2xl md:text-3xl font-light text-foreground/80 leading-relaxed">
+                No theatrics. Just results.
+              </p>
+            </div>
+          </div>
         </motion.div>
       </section>
 
-      {/* Section 4: Contact */}
+      {/* Section 4: Golden Hour / Contact */}
       <section className="relative min-h-screen flex items-center justify-center py-32">
         <motion.div
-          style={{ opacity: section4Opacity, y: section4Y }}
+          style={{
+            opacity: section4Opacity,
+            y: section4Y,
+          }}
           className="max-w-3xl mx-auto px-6 text-center"
         >
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2 }}
-          >
-            <h2 className="text-5xl md:text-7xl font-bold text-foreground mb-12 tracking-tight">
-              Let's talk
-            </h2>
+          <h2 className="text-5xl md:text-7xl font-light text-foreground mb-16 leading-tight">
+            Let's work together
+          </h2>
 
-            <p className="text-xl text-foreground/60 mb-16 max-w-xl mx-auto">
-              If you have a project that requires focus and precision, we should speak.
-            </p>
+          <p className="text-xl md:text-2xl text-foreground/70 font-light mb-20 max-w-2xl mx-auto leading-relaxed">
+            If you need a partner who understands both strategy and execution.
+          </p>
 
-            <div className="space-y-6 mb-16">
-              <a
-                href="mailto:info@ap-group.com"
-                className="block text-2xl md:text-3xl text-primary hover:text-primary-light transition-colors"
-              >
-                info@ap-group.com
-              </a>
-              <p className="text-foreground/40">or</p>
-              <a
-                href="tel:+15551234567"
-                className="block text-xl text-foreground/70 hover:text-foreground transition-colors"
-              >
-                +1 (555) 123-4567
-              </a>
-            </div>
-
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-block"
+          <div className="space-y-8 mb-24">
+            <a
+              href="mailto:hello@ap-projects.ee"
+              className="block text-2xl md:text-3xl text-foreground hover:text-foreground/70 transition-colors font-light"
             >
-              <Link
-                href="/contact"
-                className="inline-block px-12 py-5 border border-primary text-primary text-lg tracking-wide hover:bg-primary/5 transition-all"
-              >
-                SEND A MESSAGE
-              </Link>
-            </motion.div>
+              hello@ap-projects.ee
+            </a>
+          </div>
 
-            <div className="mt-32 pt-16 border-t border-foreground/10">
-              <p className="text-sm text-foreground/30">
-                © 2026 AP-group. All rights reserved.
-              </p>
+          {/* Minimal footer */}
+          <div className="pt-32 mt-32 border-t border-foreground/10">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-sm text-foreground/30">
+              <p>© 2026 AP PROJECTS</p>
+              <p className="tracking-[0.2em]">TALLINN, ESTONIA</p>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </section>
     </div>
