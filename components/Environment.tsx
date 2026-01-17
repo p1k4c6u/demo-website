@@ -31,7 +31,7 @@ export default function Environment({ scrollProgress }: EnvironmentProps) {
   const sunY = useTransform(scrollProgress, [0.2, 0.5], [100, 30]);
 
   // Fog opacity
-  const fogOpacity = useTransform(scrollProgress, [0, 0.3, 0.6, 0.9], [0.5, 0.3, 0.15, 0.01]);
+  const fogOpacity = useTransform(scrollProgress, [0, 0.3, 0.6, 0.9], [0.7, 0.5, 0.25, 0.09]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
