@@ -24,9 +24,12 @@ export default function Home() {
   // Fragmented name states (before resolution)
   const fragments = [
     "AutoParing",
+    "Autopairing...",
     "AutoParing projects",
+    "...",
     "A / P",
     "A???",
+    "______",
     "P A solutions",
     "AssHoles"
   ];
