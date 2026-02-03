@@ -10,6 +10,7 @@ import TreeLayers from "./TreeLayers";
 import FogLayers from "./FogLayers";
 import WaterReflection from "./WaterReflection";
 import BrandTypography from "./BrandTypography";
+import CinematicAudio from "./CinematicAudio";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -61,6 +62,9 @@ export default function SwampScene() {
 
       {/* Brand typography */}
       <BrandTypography />
+
+      {/* Cinematic audio */}
+      <CinematicAudio />
     </div>
   );
 }
