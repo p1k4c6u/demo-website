@@ -1,76 +1,14 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useState } from "react";
 
 export default function CinematicAudio() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const volumeRef = useRef({ value: 0 });
 
-  useEffect(() => {
-    if (!audioRef.current) return;
-
-    const audio = audioRef.current;
-
-    // Set initial volume
-    audio.volume = 0;
-
-    // Volume control based on scroll
-    const ctx = gsap.context(() => {
-      // Fade in during identity resolution (15-30%)
-      gsap.to(volumeRef.current, {
-        value: 0.3,
-        scrollTrigger: {
-          trigger: ".swamp-scene",
-          start: "+=600",   // 15% scroll
-          end: "+=800",
-          scrub: true,
-          onUpdate: (self) => {
-            if (audio && !isMuted) {
-              audio.volume = volumeRef.current.value * self.progress;
-            }
-          }
-        }
-      });
-
-      // Peak volume during sunrise (30-50%)
-      gsap.to(volumeRef.current, {
-        value: 0.5,
-        scrollTrigger: {
-          trigger: ".swamp-scene",
-          start: "+=1400",  // 35% scroll
-          end: "+=1600",
-          scrub: true,
-          onUpdate: () => {
-            if (audio && !isMuted) {
-              audio.volume = volumeRef.current.value;
-            }
-          }
-        }
-      });
-
-      // Gentle fade for golden hour (75-100%)
-      gsap.to(volumeRef.current, {
-        value: 0.4,
-        scrollTrigger: {
-          trigger: ".swamp-scene",
-          start: "+=3000",  // 75% scroll
-          end: "+=1000",
-          scrub: true,
-          onUpdate: () => {
-            if (audio && !isMuted) {
-              audio.volume = volumeRef.current.value;
-            }
-          }
-        }
-      });
-    });
-
-    return () => ctx.revert();
-  }, [isMuted]);
+  // Constant volume level (adjust between 0.0 - 1.0)
+  const VOLUME_LEVEL = 0.4;
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -79,6 +17,11 @@ export default function CinematicAudio() {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      // Set volume when playing
+      if (!isMuted) {
+        audioRef.current.volume = VOLUME_LEVEL;
+      }
+
       audioRef.current.play().catch(err => {
         console.log("Audio play failed:", err);
       });
@@ -96,7 +39,7 @@ export default function CinematicAudio() {
     if (newMutedState) {
       audioRef.current.volume = 0;
     } else if (isPlaying) {
-      audioRef.current.volume = volumeRef.current.value;
+      audioRef.current.volume = VOLUME_LEVEL;
     }
   };
 
