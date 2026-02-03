@@ -17,6 +17,19 @@ export default function CinematicAudio() {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      // Always set volume when starting playback
+      audioRef.current.volume = VOLUME_LEVEL;
+
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setIsMuted(false);
+        })
+        .catch(err => {
+          console.error("Audio play failed:", err);
+        });
+   }
       // Set volume when playing
       if (!isMuted) {
         audioRef.current.volume = VOLUME_LEVEL;
